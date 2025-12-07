@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* AQUI DEFINIMOS TU PALETA DE COLORES 
+  Cambia los códigos HEX por los de tu imagen.
+*/
+:root {
+  /* Color Principal (Botones, Logotipo, Títulos destacados) */
+  /* Ejemplo: Un Azul Oscuro Profundo o el color dominante de tu imagen */
+  --primary: #263aff; 
+  
+  /* Color Secundario (Fondos suaves, acentos ligeros) */
+  --secondary: #eff6ff;
+  
+  /* Color de Acento (Detalles, bordes hover) */
+  --accent: #263aff;
+
+  /* Color de Texto Base */
+  --foreground: #0f172a;
+  
+  /* Color de Fondo Base */
+  --background: #eff6ff;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-outfit), sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Animaciones personalizadas */
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+}
+
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
