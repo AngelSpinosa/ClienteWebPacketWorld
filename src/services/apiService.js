@@ -1,5 +1,6 @@
 // CONFIGURACIÓN DE LA API
-const BASE_URL = 'http://localhost:8095/APIpacket-world/api';
+// CORRECCIÓN: Ajustamos el puerto a 8080 y el contexto a 'packet-world' para coincidir con tu servidor
+const BASE_URL = 'http://localhost:8080/packet-world/api';
 
 // Función para mapear los estados de la BD a los estilos visuales del Frontend
 const obtenerEstiloEstado = (estadoRaw) => {
@@ -10,19 +11,24 @@ const obtenerEstiloEstado = (estadoRaw) => {
   if (estado.includes('camino') || estado.includes('tránsito') || estado.includes('transito')) return 'transit';
   if (estado.includes('cancelado') || estado.includes('error') || estado.includes('detenido')) return 'error';
   
-  return 'pending'; // Default para 'Registrado', 'En Almacén', etc.
+  return 'pending'; 
 };
 
 export async function buscarEnvioPorGuia(numeroGuia) {
   try {
-    // 1. Construimos la URL del endpoint
-    // VERIFICA: Revisa en tu archivo WSEnvio.java cuál es la ruta exacta (@Path).
-    // Ejemplo común: /envio/rastreo/{guia} o /envios/{guia}
-    const response = await fetch(`${BASE_URL}/envio/rastreo/${numeroGuia}`);
+    // Usamos la ruta que probaste con éxito en Postman:
+    // /envio/obtener-envios-por-noguia/{noGuia}
+    const response = await fetch(`${BASE_URL}/envio/obtener-envios-por-noguia/${numeroGuia}`);
 
     if (!response.ok) {
       if (response.status === 404) return null; // No encontrado
       throw new Error(`Error del servidor: ${response.status}`);
+    }
+
+    // OJO: La API devuelve un 204 No Content (null) si no encuentra nada, 
+    // pero fetch puede interpretarlo como ok con body vacío.
+    if (response.status === 204) {
+        return null;
     }
 
     const dataApi = await response.json();
@@ -32,39 +38,39 @@ export async function buscarEnvioPorGuia(numeroGuia) {
       return null;
     }
 
-    // 2. ADAPTADOR (Mapping)
-    // Si la API devuelve un Array, tomamos el primero. Si es objeto, lo usamos directo.
+    // ADAPTADOR (Mapping)
+    // Tu API devuelve una Lista, tomamos el primer elemento [0]
     const envio = Array.isArray(dataApi) ? dataApi[0] : dataApi;
 
-    // Aquí transformamos las variables de tu API (Español/BD) a las del Frontend (Inglés/UI)
-    // Ajusta los nombres de la derecha (ej. envio.numeroGuia) según tu POJO Java.
     return {
-      guideNumber: envio.numeroGuia || envio.guia || "Sin Guía",
-      status: envio.estatus || envio.estado || "Desconocido",
-      statusCode: obtenerEstiloEstado(envio.estatus || envio.estado),
-      origin: `${envio.ciudadOrigen || 'Origen'}, ${envio.calleOrigen || ''}`,
-      destination: `${envio.ciudadDestino || 'Destino'}, ${envio.calleDestino || ''}`,
+      guideNumber: envio.noGuia || "Sin Guía",
+      // Mapeamos 'estadoDeEnvio' (tu POJO) a 'status' (Frontend)
+      status: envio.estadoDeEnvio || "Desconocido", 
+      statusCode: obtenerEstiloEstado(envio.estadoDeEnvio),
       
-      // Historial: Si tu API devuelve el historial dentro del objeto envío
+      // Concatenamos ciudad y calle del POJO
+      origin: `${envio.nombreCiudadOrigen || ''}, ${envio.origenCalle || ''}`,
+      destination: envio.destino || "Destino registrado", 
+      
+      // Mapeamos el historial
       history: (envio.historial || []).map(h => ({
-        status: h.estatus || "Actualización",
-        date: h.fecha || h.fechaCambio || "Fecha no disponible",
-        description: h.comentario || h.notas || "",
-        location: h.ubicacion || "Ubicación registrada"
+        status: h.nombreEstado || "Actualización", // Usamos nombreEstado del POJO Historial
+        date: h.fechaCambio || "Fecha no disponible",
+        description: h.motivo || "",
+        location: "Sucursal" // Tu historial actual no tiene ubicación específica, ponemos un default
       })),
 
-      // Paquetes: Si tu API devuelve la lista de paquetes
+      // Paquetes (Si la lista viene nula, ponemos array vacío)
       packages: (envio.paquetes || []).map(p => ({
-        id: p.idPaquete || "1",
-        description: p.descripcion || "Paquete estándar",
-        weight: p.peso ? `${p.peso} kg` : "N/A",
-        dimensions: p.dimensiones || `${p.alto}x${p.ancho}x${p.profundidad}` || "N/A"
+        id: p.idPaquete,
+        description: p.descripcion,
+        weight: `${p.peso} kg`,
+        dimensions: `${p.alto}x${p.ancho}x${p.profundidad}`
       }))
     };
 
   } catch (error) {
     console.error("Error conectando a la API Packet-World:", error);
-    // Retornamos null para que la UI muestre el mensaje de "No encontrado" o Error
     throw error;
   }
 }
