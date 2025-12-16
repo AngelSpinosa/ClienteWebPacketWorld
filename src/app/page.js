@@ -7,10 +7,13 @@ import HeroSection from '../components/HeroSection';
 import ErrorView from '../components/ErrorView';
 import ShipmentResults from '../components/ShipmentResults';
 
-// Importamos los nuevos componentes de la Landing Page
+// Importamos los componentes de la Landing Page
 import FeaturesSection from '../components/FeaturesSection';
 import StatsSection from '../components/StatsSection';
 import WhyUsSection from '../components/WhyUsSection';
+import BranchesSection from '../components/BranchesSection';
+import ServicesSection from '../components/ServicesSection'; // <-- Nuevo Import
+import ContactSection from '../components/ContactSection';
 
 import { buscarEnvioPorGuia } from '@/services/apiService';
 
@@ -63,8 +66,11 @@ export default function Home() {
             {/* Sección Héroe (Buscador) */}
             <HeroSection onSearch={handleSearch} isLoading={loading} />
             
-            {/* Nuevas Secciones de la Landing Page */}
+            {/* Secciones Informativas */}
             <FeaturesSection />
+            <BranchesSection />
+            <ServicesSection />
+            <ContactSection />
             <WhyUsSection />
             <StatsSection />
           </div>
