@@ -29,10 +29,6 @@ const WhyUsSection = () => {
               </li>
             ))}
           </ul>
-
-          <button className="bg-blue-600 text-white px-8 py-4 rounded-full font-bold hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-200">
-            Conocer más sobre nosotros
-          </button>
         </div>
 
         {/* Elemento visual (Tarjeta simulada) */}

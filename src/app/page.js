@@ -12,8 +12,9 @@ import FeaturesSection from '../components/FeaturesSection';
 import StatsSection from '../components/StatsSection';
 import WhyUsSection from '../components/WhyUsSection';
 import BranchesSection from '../components/BranchesSection';
-import ServicesSection from '../components/ServicesSection'; // <-- Nuevo Import
+import ServicesSection from '../components/ServicesSection'; 
 import ContactSection from '../components/ContactSection';
+import CompanyInfoSection from '@/components/CompanyInfoSection';  
 
 import { buscarEnvioPorGuia } from '@/services/apiService';
 
@@ -33,6 +34,31 @@ export default function Home() {
     try {
       const data = await buscarEnvioPorGuia(guideNumber);
       
+      // -------------------------------------------------------
+      // 🔍 BLOQUE DE DEPURACIÓN (Borrar en producción)
+      // -------------------------------------------------------
+      console.group("🔍 Depuración de Búsqueda");
+      console.log("Número de guía:", guideNumber);
+      console.log("Objeto completo recibido del API:", data);
+
+      if (data) {
+        // Verificamos propiedades comunes de historial
+        if (Array.isArray(data.historial)) {
+          console.log(`✅ Propiedad 'historial' encontrada con ${data.historial.length} eventos.`);
+        } else if (Array.isArray(data.history)) {
+          console.log(`⚠️ Propiedad 'history' encontrada (en inglés). Asegúrate que ShipmentResults use 'history'.`);
+        } else if (Array.isArray(data.tracking)) {
+          console.log(`⚠️ Propiedad 'tracking' encontrada. Asegúrate que ShipmentResults use 'tracking'.`);
+        } else {
+          console.error("❌ NO se encontró ninguna lista de historial (historial, history, tracking) en el objeto.");
+          console.log("Las llaves disponibles en 'data' son:", Object.keys(data));
+        }
+      } else {
+        console.error("❌ La respuesta del API fue nula o undefined.");
+      }
+      console.groupEnd();
+      // -------------------------------------------------------
+
       if (data) {
         setCurrentShipment(data);
         setHasError(false);
@@ -41,7 +67,7 @@ export default function Home() {
         setHasError(true);
       }
     } catch (error) {
-      console.error("Error en la búsqueda:", error);
+      console.error("Error crítico en la búsqueda:", error);
       setCurrentShipment(null);
       setHasError(true);
     } finally {
@@ -72,6 +98,7 @@ export default function Home() {
             <ServicesSection />
             <ContactSection />
             <WhyUsSection />
+            <CompanyInfoSection />
             <StatsSection />
           </div>
         )}
