@@ -10,15 +10,13 @@ const obtenerEstiloEstado = (estadoRaw) => {
   if (estado.includes('entregado')) return 'delivered';
   if (estado.includes('camino') || estado.includes('tránsito') || estado.includes('transito')) return 'transit';
   if (estado.includes('cancelado') || estado.includes('error') || estado.includes('detenido')) return 'error';
-  
+    
   return 'pending'; 
 };
 
 export async function buscarEnvioPorGuia(numeroGuia) {
   try {
-    // Usamos la ruta que probaste con éxito en Postman:
-    // /envio/obtener-envios-por-noguia/{noGuia}
-    const response = await fetch(`${BASE_URL}/envio/obtener-envios-por-noguia/${numeroGuia}`);
+    const response = await fetch(`${BASE_URL}/envio/rastreo/${numeroGuia}`);
 
     if (!response.ok) {
       if (response.status === 404) return null; // No encontrado
